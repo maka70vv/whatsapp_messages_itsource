@@ -33,11 +33,18 @@ def send_message(to, text):
         return
 
 
-def process_message_sending(sender, message_text):
+def process_message_sending(sender, message_data):
+    message_text = message_data.get("body") or message_data.get("content")
+    quotedMsg = message_data.get("quotedMsg").get("body") if message_data.get("quotedMsg") else None
     if not sender_is_operator(sender):
-        send_message(config.ROOT_OPERATORS_GROUP, f"{sender}\n {message_text}")
+        send_message(
+            config.ROOT_OPERATORS_GROUP,
+            f"{sender}\n"
+            f"{f'\nОтветил на сообщение: {quotedMsg}\n\n' if quotedMsg else ''}"
+            f"{message_text}"
+        )
     else:
-        customer_number, message_text = process_operator_answer(message_text)
+        customer_number = process_operator_answer(message_data.get("quotedMsg").get("body"))
         send_message(customer_number, message_text)
 
 
@@ -51,7 +58,6 @@ def process_operator_answer(text):
 
     if match:
         extracted_object = match.group(0)
-        cleaned_text = text.replace(extracted_object, "").strip(" -:\n")
-        return extracted_object, cleaned_text
+        return extracted_object
 
-    return None, text.strip()
+    return None

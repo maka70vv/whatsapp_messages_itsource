@@ -16,7 +16,7 @@ def process_webhook(data):
             sender = data.get("sender", {}).get("pushname", "Unknown")
             sender_num = data.get("from")
 
-            process_message_sending(sender_num, message_text)
+            process_message_sending(sender_num, data)
 
 
 @app.route('/webhook/whatsapp', methods=['POST'])
